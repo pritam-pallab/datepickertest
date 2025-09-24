@@ -1,156 +1,169 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Date Picker Test</title>
     <style>
       body {
-        font-family: Arial, sans-serif;
+        font-family: Inter, system-ui, Arial;
         margin: 0;
-        padding: 0;
+        background: #0f1724;
+        color: #e6eef6;
+        min-height: 100vh;
         display: flex;
-        flex-direction: column;
         align-items: center;
-        justify-content: flex-start;
-        height: 100vh;
-        background-color: #f5f5f5;
-        color: #333;
-        transition: background-color 0.3s, color 0.3s;
+        justify-content: center;
+        padding: 32px;
       }
-      header {
-        margin: 20px 0;
-        font-size: 1.8em;
-        font-weight: bold;
+      .wrap {
+        max-width: 720px;
+        width: 100%;
+      }
+      h1 {
+        font-size: 22px;
+        margin-bottom: 12px;
         text-align: center;
+      }
+      .delimiter-container {
+        margin-bottom: 20px;
+        text-align: center;
+      }
+      input[type="text"] {
+        padding: 6px 10px;
+        border-radius: 6px;
+        border: none;
+        outline: none;
+        font-size: 14px;
+        font-family: inherit;
       }
       .card {
-        background: white;
+        background: #0b1220;
         padding: 20px;
-        margin: 15px;
-        border-radius: 10px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        width: 320px;
-      }
-      h2 {
-        margin-top: 0;
-        font-size: 1.2em;
-        text-align: center;
-      }
-      ul {
-        list-style: none;
-        padding: 0;
-      }
-      li {
-        margin: 6px 0;
-      }
-      .toggle-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(2, 6, 23, 0.6);
         margin-bottom: 20px;
       }
-      .toggle-label {
-        margin-left: 10px;
-        font-size: 0.9em;
+      .formats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 12px;
+        margin-top: 12px;
       }
-      body.dark {
-        background-color: #121212;
-        color: #eee;
+      .fmt {
+        padding: 12px;
+        border-radius: 10px;
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          transparent
+        );
+        border: 1px solid rgba(255, 255, 255, 0.03);
       }
-      body.dark .card {
-        background: #1e1e1e;
-        color: #eee;
+      .fmt .label {
+        font-size: 13px;
+        color: #9aa4b2;
+        margin-bottom: 6px;
+      }
+      .fmt .value {
+        font-family: SFMono-Regular, Menlo, monospace;
+        font-weight: 600;
       }
     </style>
   </head>
   <body>
-    <header>Date Picker Test</header>
+    <div class="wrap">
+      <h1>Date Picker Test</h1>
 
-    <div class="toggle-container">
-      <input type="checkbox" id="themeToggle" />
-      <label for="themeToggle" class="toggle-label">Dark Mode</label>
-    </div>
+      <div class="delimiter-container">
+        <label for="delimiter">Delimiter: </label>
+        <input type="text" id="delimiter" maxlength="5" placeholder="space" />
+      </div>
 
-    <div class="card" id="random-date-card">
-      <h2>Random Date</h2>
-      <ul id="randomDateList"></ul>
-    </div>
+      <div class="card">
+        <p>Random Date:</p>
+        <div id="randomDate" style="margin-bottom: 12px; font-weight: 600"></div>
+        <div class="formats" id="randomFormats"></div>
+      </div>
 
-    <div class="card" id="today-date-card">
-      <h2>Today's Date</h2>
-      <ul id="todayDateList"></ul>
+      <div class="card">
+        <p>Today's Date:</p>
+        <div id="todayDate" style="margin-bottom: 12px; font-weight: 600"></div>
+        <div class="formats" id="todayFormats"></div>
+      </div>
     </div>
 
     <script>
-      function getRandomDate(start = new Date(2000, 0, 1), end = new Date()) {
+      function z(n, len = 2) {
+        return String(n).padStart(len, "0");
+      }
+
+      function randomDate() {
+        const start = new Date(2000, 0, 1);
+        const end = new Date(2030, 11, 31);
         return new Date(
           start.getTime() + Math.random() * (end.getTime() - start.getTime())
         );
       }
 
-      function formatDate(date, format) {
-        const day = String(date.getDate()).padStart(2, "0");
-        const month = String(date.getMonth() + 1).padStart(2, "0");
-        const year = date.getFullYear();
-        const monthNames = [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-          "Jul",
-          "Aug",
-          "Sep",
-          "Oct",
-          "Nov",
-          "Dec",
-        ];
-        const mmm = monthNames[date.getMonth()];
+      const randomD = randomDate();
+      const todayD = new Date();
 
-        switch (format) {
+      const randomDateEl = document.getElementById("randomDate");
+      const todayDateEl = document.getElementById("todayDate");
+      randomDateEl.textContent = randomD.toDateString();
+      todayDateEl.textContent = todayD.toDateString();
+
+      const formatsList = [
+        { label: "dd mm yyyy", fmt: "dd mm yyyy" },
+        { label: "dd mmm yyyy", fmt: "dd mmm yyyy" },
+        { label: "mm dd yyyy", fmt: "mm dd yyyy" },
+        { label: "mmm dd yyyy", fmt: "mmm dd yyyy" },
+        { label: "yyyy mm dd", fmt: "yyyy mm dd" },
+      ];
+
+      function formatDate(d, label, delimiter) {
+        const monthShort = new Intl.DateTimeFormat("en-US", { month: "short" }).format(d);
+        switch (label) {
           case "dd mm yyyy":
-            return `${day} ${month} ${year}`;
+            return `${z(d.getDate())}${delimiter}${z(d.getMonth() + 1)}${delimiter}${d.getFullYear()}`;
           case "dd mmm yyyy":
-            return `${day} ${mmm} ${year}`;
+            return `${z(d.getDate())}${delimiter}${monthShort}${delimiter}${d.getFullYear()}`;
           case "mm dd yyyy":
-            return `${month} ${day} ${year}`;
+            return `${z(d.getMonth() + 1)}${delimiter}${z(d.getDate())}${delimiter}${d.getFullYear()}`;
           case "mmm dd yyyy":
-            return `${mmm} ${day} ${year}`;
+            return `${monthShort}${delimiter}${z(d.getDate())}${delimiter}${d.getFullYear()}`;
           case "yyyy mm dd":
-            return `${year} ${month} ${day}`;
-          default:
-            return date.toDateString();
+            return `${d.getFullYear()}${delimiter}${z(d.getMonth() + 1)}${delimiter}${z(d.getDate())}`;
         }
       }
 
-      function displayFormats(date, elementId) {
-        const formats = [
-          "dd mm yyyy",
-          "dd mmm yyyy",
-          "mm dd yyyy",
-          "mmm dd yyyy",
-          "yyyy mm dd",
-        ];
-        const list = document.getElementById(elementId);
-        list.innerHTML = "";
-        formats.forEach((fmt) => {
-          const li = document.createElement("li");
-          li.textContent = `${fmt}: ${formatDate(date, fmt)}`;
-          list.appendChild(li);
+      function renderAll() {
+        const delimiterInput = document.getElementById("delimiter").value;
+        const delimiter = /^[a-zA-Z0-9]{1,5}$/.test(delimiterInput)
+          ? delimiterInput
+          : " ";
+
+        const randomFormatsEl = document.getElementById("randomFormats");
+        randomFormatsEl.innerHTML = "";
+        const todayFormatsEl = document.getElementById("todayFormats");
+        todayFormatsEl.innerHTML = "";
+
+        formatsList.forEach((item) => {
+          const rDiv = document.createElement("div");
+          rDiv.className = "fmt";
+          rDiv.innerHTML = `<div class="label">${item.label}</div><div class="value">${formatDate(randomD, item.label, delimiter)}</div>`;
+          randomFormatsEl.appendChild(rDiv);
+
+          const tDiv = document.createElement("div");
+          tDiv.className = "fmt";
+          tDiv.innerHTML = `<div class="label">${item.label}</div><div class="value">${formatDate(todayD, item.label, delimiter)}</div>`;
+          todayFormatsEl.appendChild(tDiv);
         });
       }
 
-      const randomDate = getRandomDate();
-      displayFormats(randomDate, "randomDateList");
-
-      const todayDate = new Date();
-      displayFormats(todayDate, "todayDateList");
-
-      document.getElementById("themeToggle").addEventListener("change", (e) => {
-        document.body.classList.toggle("dark", e.target.checked);
-      });
+      document.getElementById("delimiter").addEventListener("input", renderAll);
+      renderAll();
     </script>
   </body>
 </html>
