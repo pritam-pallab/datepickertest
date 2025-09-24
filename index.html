@@ -167,10 +167,12 @@
       }
 
       function renderAll() {
+        console.log("renderAll");
         const delimiterInput = document.getElementById("delimiter").value;
-        const delimiter = /^[a-zA-Z0-9]{1,5}$/.test(delimiterInput)
-          ? delimiterInput
-          : " ";
+        const delimiter =
+          delimiterInput.length > 0 && delimiterInput.length <= 5
+            ? delimiterInput
+            : " ";
 
         const randomFormatsEl = document.getElementById("randomFormats");
         const todayFormatsEl = document.getElementById("todayFormats");
