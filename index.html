@@ -1,145 +1,155 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Date Formats — GitHub Pages Demo</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Date Picker Test</title>
     <style>
       body {
-        font-family: Inter, system-ui, Arial;
+        font-family: Arial, sans-serif;
         margin: 0;
-        background: #0f1724;
-        color: #e6eef6;
-        min-height: 100vh;
+        padding: 0;
         display: flex;
+        flex-direction: column;
         align-items: center;
-        justify-content: center;
-        padding: 32px;
+        justify-content: flex-start;
+        height: 100vh;
+        background-color: #f5f5f5;
+        color: #333;
+        transition: background-color 0.3s, color 0.3s;
       }
-      .wrap {
-        max-width: 720px;
-        width: 100%;
-      }
-      h1 {
-        font-size: 22px;
-        margin-bottom: 12px;
+      header {
+        margin: 20px 0;
+        font-size: 1.8em;
+        font-weight: bold;
+        text-align: center;
       }
       .card {
-        background: #0b1220;
+        background: white;
         padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 6px 20px rgba(2, 6, 23, 0.6);
-      }
-      .formats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 12px;
-        margin-top: 12px;
-      }
-      .fmt {
-        padding: 12px;
+        margin: 15px;
         border-radius: 10px;
-        background: linear-gradient(
-          180deg,
-          rgba(255, 255, 255, 0.02),
-          transparent
-        );
-        border: 1px solid rgba(255, 255, 255, 0.03);
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        width: 320px;
       }
-      .fmt .label {
-        font-size: 13px;
-        color: #9aa4b2;
-        margin-bottom: 6px;
+      h2 {
+        margin-top: 0;
+        font-size: 1.2em;
+        text-align: center;
       }
-      .fmt .value {
-        font-family: SFMono-Regular, Menlo, monospace;
-        font-weight: 600;
+      ul {
+        list-style: none;
+        padding: 0;
+      }
+      li {
+        margin: 6px 0;
+      }
+      .toggle-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+      .toggle-label {
+        margin-left: 10px;
+        font-size: 0.9em;
+      }
+      body.dark {
+        background-color: #121212;
+        color: #eee;
+      }
+      body.dark .card {
+        background: #1e1e1e;
+        color: #eee;
       }
     </style>
   </head>
   <body>
-    <div class="wrap">
-      <h1>Date Formats — Demo</h1>
+    <header>Date Picker Test</header>
 
-      <div class="card">
-        <p>Randomly generated date:</p>
-        <div
-          id="randomDate"
-          style="margin-bottom: 12px; font-weight: 600"
-        ></div>
+    <div class="toggle-container">
+      <input type="checkbox" id="themeToggle" />
+      <label for="themeToggle" class="toggle-label">Dark Mode</label>
+    </div>
 
-        <div class="formats" id="formats"></div>
-      </div>
+    <div class="card" id="random-date-card">
+      <h2>Random Date</h2>
+      <ul id="randomDateList"></ul>
+    </div>
+
+    <div class="card" id="today-date-card">
+      <h2>Today's Date</h2>
+      <ul id="todayDateList"></ul>
     </div>
 
     <script>
-      // Helper
-      function z(n, len = 2) {
-        return String(n).padStart(len, "0");
-      }
-
-      // Generate a random date
-      function randomDate() {
-        const start = new Date(2000, 0, 1);
-        const end = new Date(2030, 11, 31);
+      function getRandomDate(start = new Date(2000, 0, 1), end = new Date()) {
         return new Date(
           start.getTime() + Math.random() * (end.getTime() - start.getTime())
         );
       }
 
-      const d = randomDate();
+      function formatDate(date, format) {
+        const day = String(date.getDate()).padStart(2, "0");
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const year = date.getFullYear();
+        const monthNames = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+        const mmm = monthNames[date.getMonth()];
 
-      // Display the chosen random date (ISO)
-      const randomDateEl = document.getElementById("randomDate");
-      randomDateEl.textContent = d.toDateString();
-
-      // Formats list
-      const formatsList = [
-        { label: "dd mm yyyy", fmt: "dd mm yyyy" },
-        { label: "dd mmm yyyy", fmt: "dd mmm yyyy" },
-        { label: "mm dd yyyy", fmt: "mm dd yyyy" },
-        { label: "mmm dd yyyy", fmt: "mmm dd yyyy" },
-        { label: "yyyy mm dd", fmt: "yyyy mm dd" },
-      ];
-
-      const formatsEl = document.getElementById("formats");
-
-      formatsList.forEach((item) => {
-        const div = document.createElement("div");
-        div.className = "fmt";
-        const label = document.createElement("div");
-        label.className = "label";
-        label.textContent = item.label;
-        const value = document.createElement("div");
-        value.className = "value";
-
-        let out = "";
-        switch (item.label) {
+        switch (format) {
           case "dd mm yyyy":
-            out = `${z(d.getDate())} ${z(d.getMonth() + 1)} ${d.getFullYear()}`;
-            break;
+            return `${day} ${month} ${year}`;
           case "dd mmm yyyy":
-            out = `${z(d.getDate())} ${new Intl.DateTimeFormat("en-US", {
-              month: "short",
-            }).format(d)} ${d.getFullYear()}`;
-            break;
+            return `${day} ${mmm} ${year}`;
           case "mm dd yyyy":
-            out = `${z(d.getMonth() + 1)} ${z(d.getDate())} ${d.getFullYear()}`;
-            break;
+            return `${month} ${day} ${year}`;
           case "mmm dd yyyy":
-            out = `${new Intl.DateTimeFormat("en-US", {
-              month: "short",
-            }).format(d)} ${z(d.getDate())} ${d.getFullYear()}`;
-            break;
+            return `${mmm} ${day} ${year}`;
           case "yyyy mm dd":
-            out = `${d.getFullYear()} ${z(d.getMonth() + 1)} ${z(d.getDate())}`;
-            break;
+            return `${year} ${month} ${day}`;
+          default:
+            return date.toDateString();
         }
+      }
 
-        value.textContent = out;
-        div.appendChild(label);
-        div.appendChild(value);
-        formatsEl.appendChild(div);
+      function displayFormats(date, elementId) {
+        const formats = [
+          "dd mm yyyy",
+          "dd mmm yyyy",
+          "mm dd yyyy",
+          "mmm dd yyyy",
+          "yyyy mm dd",
+        ];
+        const list = document.getElementById(elementId);
+        list.innerHTML = "";
+        formats.forEach((fmt) => {
+          const li = document.createElement("li");
+          li.textContent = `${fmt}: ${formatDate(date, fmt)}`;
+          list.appendChild(li);
+        });
+      }
+
+      const randomDate = getRandomDate();
+      displayFormats(randomDate, "randomDateList");
+
+      const todayDate = new Date();
+      displayFormats(todayDate, "todayDateList");
+
+      document.getElementById("themeToggle").addEventListener("change", (e) => {
+        document.body.classList.toggle("dark", e.target.checked);
       });
     </script>
   </body>
