@@ -82,7 +82,10 @@
 
       <div class="card">
         <p>Random Date:</p>
-        <div id="randomDate" style="margin-bottom: 12px; font-weight: 600"></div>
+        <div
+          id="randomDate"
+          style="margin-bottom: 12px; font-weight: 600"
+        ></div>
         <div class="formats" id="randomFormats"></div>
       </div>
 
@@ -98,71 +101,79 @@
         return String(n).padStart(len, "0");
       }
 
-      function randomDate() {
-        const start = new Date(2000, 0, 1);
-        const end = new Date(2030, 11, 31);
-        return new Date(
-          start.getTime() + Math.random() * (end.getTime() - start.getTime())
-        );
+      function formatDate(d, label, delimiter) {
+        const monthShort = new Intl.DateTimeFormat("en-US", {
+          month: "short",
+        }).format(d);
+        switch (label) {
+          case "dd mm yyyy":
+            return `${z(d.getDate())}${delimiter}${z(
+              d.getMonth() + 1
+            )}${delimiter}${d.getFullYear()}`;
+          case "dd mmm yyyy":
+            return `${z(
+              d.getDate()
+            )}${delimiter}${monthShort}${delimiter}${d.getFullYear()}`;
+          case "mm dd yyyy":
+            return `${z(d.getMonth() + 1)}${delimiter}${z(
+              d.getDate()
+            )}${delimiter}${d.getFullYear()}`;
+          case "mmm dd yyyy":
+            return `${monthShort}${delimiter}${z(
+              d.getDate()
+            )}${delimiter}${d.getFullYear()}`;
+          case "yyyy mm dd":
+            return `${d.getFullYear()}${delimiter}${z(
+              d.getMonth() + 1
+            )}${delimiter}${z(d.getDate())}`;
+        }
       }
 
       const randomD = randomDate();
       const todayD = new Date();
 
-      const randomDateEl = document.getElementById("randomDate");
-      const todayDateEl = document.getElementById("todayDate");
-      randomDateEl.textContent = randomD.toDateString();
-      todayDateEl.textContent = todayD.toDateString();
-
-      const formatsList = [
-        { label: "dd mm yyyy", fmt: "dd mm yyyy" },
-        { label: "dd mmm yyyy", fmt: "dd mmm yyyy" },
-        { label: "mm dd yyyy", fmt: "mm dd yyyy" },
-        { label: "mmm dd yyyy", fmt: "mmm dd yyyy" },
-        { label: "yyyy mm dd", fmt: "yyyy mm dd" },
-      ];
-
-      function formatDate(d, label, delimiter) {
-        const monthShort = new Intl.DateTimeFormat("en-US", { month: "short" }).format(d);
-        switch (label) {
-          case "dd mm yyyy":
-            return `${z(d.getDate())}${delimiter}${z(d.getMonth() + 1)}${delimiter}${d.getFullYear()}`;
-          case "dd mmm yyyy":
-            return `${z(d.getDate())}${delimiter}${monthShort}${delimiter}${d.getFullYear()}`;
-          case "mm dd yyyy":
-            return `${z(d.getMonth() + 1)}${delimiter}${z(d.getDate())}${delimiter}${d.getFullYear()}`;
-          case "mmm dd yyyy":
-            return `${monthShort}${delimiter}${z(d.getDate())}${delimiter}${d.getFullYear()}`;
-          case "yyyy mm dd":
-            return `${d.getFullYear()}${delimiter}${z(d.getMonth() + 1)}${delimiter}${z(d.getDate())}`;
-        }
-      }
-
       function renderAll() {
-        const delimiterInput = document.getElementById("delimiter").value;
-        const delimiter = /^[a-zA-Z0-9]{1,5}$/.test(delimiterInput)
+        let delimiterInput = document.getElementById("delimiter").value;
+        let delimiter = /^[a-zA-Z0-9]{1,5}$/.test(delimiterInput)
           ? delimiterInput
           : " ";
 
         const randomFormatsEl = document.getElementById("randomFormats");
-        randomFormatsEl.innerHTML = "";
         const todayFormatsEl = document.getElementById("todayFormats");
+
+        // Clear previous values
+        randomFormatsEl.innerHTML = "";
         todayFormatsEl.innerHTML = "";
 
         formatsList.forEach((item) => {
           const rDiv = document.createElement("div");
           rDiv.className = "fmt";
-          rDiv.innerHTML = `<div class="label">${item.label}</div><div class="value">${formatDate(randomD, item.label, delimiter)}</div>`;
+          rDiv.innerHTML = `<div class="label">${
+            item.label
+          }</div><div class="value">${formatDate(
+            randomD,
+            item.label,
+            delimiter
+          )}</div>`;
           randomFormatsEl.appendChild(rDiv);
 
           const tDiv = document.createElement("div");
           tDiv.className = "fmt";
-          tDiv.innerHTML = `<div class="label">${item.label}</div><div class="value">${formatDate(todayD, item.label, delimiter)}</div>`;
+          tDiv.innerHTML = `<div class="label">${
+            item.label
+          }</div><div class="value">${formatDate(
+            todayD,
+            item.label,
+            delimiter
+          )}</div>`;
           todayFormatsEl.appendChild(tDiv);
         });
       }
 
+      // Event listener
       document.getElementById("delimiter").addEventListener("input", renderAll);
+
+      // Initial render
       renderAll();
     </script>
   </body>
