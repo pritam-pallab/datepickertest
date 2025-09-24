@@ -36,6 +36,19 @@
         outline: none;
         font-size: 14px;
         font-family: inherit;
+        margin-right: 8px;
+      }
+      button {
+        padding: 6px 12px;
+        border-radius: 6px;
+        border: none;
+        background-color: #1e3a8a;
+        color: #fff;
+        cursor: pointer;
+        font-size: 14px;
+      }
+      button:hover {
+        background-color: #2563eb;
       }
       .card {
         background: #0b1220;
@@ -76,8 +89,8 @@
       <h1>Date Picker Test</h1>
 
       <div class="delimiter-container">
-        <label for="delimiter">Delimiter: </label>
         <input type="text" id="delimiter" maxlength="5" placeholder="space" />
+        <button id="applyDelimiter">Apply Delimiter</button>
       </div>
 
       <div class="card">
@@ -100,6 +113,30 @@
       function z(n, len = 2) {
         return String(n).padStart(len, "0");
       }
+
+      function randomDate() {
+        const start = new Date(2000, 0, 1);
+        const end = new Date(2030, 11, 31);
+        return new Date(
+          start.getTime() + Math.random() * (end.getTime() - start.getTime())
+        );
+      }
+
+      const formatsList = [
+        { label: "dd mm yyyy", fmt: "dd mm yyyy" },
+        { label: "dd mmm yyyy", fmt: "dd mmm yyyy" },
+        { label: "mm dd yyyy", fmt: "mm dd yyyy" },
+        { label: "mmm dd yyyy", fmt: "mmm dd yyyy" },
+        { label: "yyyy mm dd", fmt: "yyyy mm dd" },
+      ];
+
+      const randomD = randomDate();
+      const todayD = new Date();
+
+      const randomDateEl = document.getElementById("randomDate");
+      const todayDateEl = document.getElementById("todayDate");
+      randomDateEl.textContent = randomD.toDateString();
+      todayDateEl.textContent = todayD.toDateString();
 
       function formatDate(d, label, delimiter) {
         const monthShort = new Intl.DateTimeFormat("en-US", {
@@ -129,19 +166,14 @@
         }
       }
 
-      const randomD = randomDate();
-      const todayD = new Date();
-
       function renderAll() {
-        let delimiterInput = document.getElementById("delimiter").value;
-        let delimiter = /^[a-zA-Z0-9]{1,5}$/.test(delimiterInput)
+        const delimiterInput = document.getElementById("delimiter").value;
+        const delimiter = /^[a-zA-Z0-9]{1,5}$/.test(delimiterInput)
           ? delimiterInput
           : " ";
 
         const randomFormatsEl = document.getElementById("randomFormats");
         const todayFormatsEl = document.getElementById("todayFormats");
-
-        // Clear previous values
         randomFormatsEl.innerHTML = "";
         todayFormatsEl.innerHTML = "";
 
@@ -170,10 +202,9 @@
         });
       }
 
-      // Event listener
-      document.getElementById("delimiter").addEventListener("input", renderAll);
-
-      // Initial render
+      document
+        .getElementById("applyDelimiter")
+        .addEventListener("click", renderAll);
       renderAll();
     </script>
   </body>
