@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Date Formats — GitHub Pages Demo</title>
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--muted:#9aa4b2;--accent:#7dd3fc}
+    body{font-family:Inter,system-ui,Arial;margin:0;background:linear-gradient(180deg,#071022,#0b1220);color:#e6eef6;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px}
+    .wrap{max-width:920px;width:100%}
+    header{display:flex;align-items:center;gap:16px;margin-bottom:18px}
+    h1{font-size:20px;margin:0}
+    p.lead{margin:0;color:var(--muted)}
+    .card{background:var(--card);padding:18px;border-radius:12px;box-shadow:0 6px 20px rgba(2,6,23,.6)}
+    .controls{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+    input[type=date],input[type=datetime-local],select{padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,.06);background:transparent;color:inherit}
+    .formats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px}
+    .fmt{padding:12px;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,.02),transparent);border:1px solid rgba(255,255,255,.03)}
+    .fmt .label{font-size:12px;color:var(--muted);margin-bottom:6px}
+    .fmt .value{font-family:SFMono-Regular,Menlo,monospace;font-weight:600}
+    footer{margin-top:12px;color:var(--muted);font-size:13px}
+    .example{margin-top:12px;padding:12px;border-radius:8px;background:rgba(125,211,252,.03);color:var(--accent);border:1px dashed rgba(125,211,252,.06)}
+    .small{font-size:13px;color:var(--muted)}
+    .format-input{width:100%;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,.06);background:transparent;color:inherit}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Date Formats — GitHub Pages demo</h1>
+        <p class="lead">Try formats (tokens supported: <code>DD D MM M YYYY YY MMM MMMM</code> and standard Intl formats)</p>
+      </div>
+    </header>
+
+    <div class="card">
+      <div class="controls">
+        <label class="small">Choose date: <input id="datePicker" type="date"></label>
+        <label class="small">Choose time (optional): <input id="dateTime" type="datetime-local"></label>
+        <label class="small">Locale: 
+          <select id="localeSelect">
+            <option value="en-US">en-US</option>
+            <option value="en-GB">en-GB</option>
+            <option value="fr-FR">fr-FR</option>
+            <option value="de-DE">de-DE</option>
+            <option value="hi-IN">hi-IN</option>
+            <option value="ja-JP">ja-JP</option>
+            <option value="auto" selected>auto (browser)</option>
+          </select>
+        </label>
+      </div>
+
+      <div>
+        <label class="small">Custom format (use tokens DD, D, MM, M, YYYY, YY, MMM, MMMM):</label>
+        <input id="customFormat" class="format-input" value="DD MM YYYY" />
+      </div>
+
+      <div class="formats" id="formats">
+        <!-- formats inserted by JS -->
+      </div>
+
+      <div class="example" id="exampleBox">Selected date: <span id="selectedHuman">(none)</span></div>
+
+      <footer>
+        <p class="small">To publish: create a new GitHub repo, add this file as <code>index.html</code>, push, then enable GitHub Pages in repo settings (branch: main / root). Or use gh-pages branch. The page will be available at <code>https://&lt;username&gt;.github.io/&lt;repo&gt;/</code>.</p>
+      </footer>
+    </div>
+  </div>
+
+<script>
+// Helper: zero-pad
+function z(n, len=2){return String(n).padStart(len,'0')}
+
+// Token-based formatter (supports DD, D, MM, M, YYYY, YY, MMM, MMMM)
+function formatWithTokens(format, date, locale='en-US'){
+  const monthsLong = new Intl.DateTimeFormat(locale,{month:'long'}).format;
+  const monthsShort = new Intl.DateTimeFormat(locale,{month:'short'}).format;
+
+  const map = {
+    'DD': z(date.getDate(),2),
+    'D': date.getDate(),
+    'MM': z(date.getMonth()+1,2),
+    'M': date.getMonth()+1,
+    'YYYY': date.getFullYear(),
+    'YY': String(date.getFullYear()).slice(-2),
+    'MMMM': monthsLong(date),
+    'MMM': monthsShort(date)
+  };
+
+  // Replace longer tokens first
+  return format.replace(/MMMM|YYYY|MMM|MM|DD|YY|D|M/g, token => map[token] ?? token);
+}
+
+// Different formats to show
+const formatsList = [
+  {label: 'Custom (tokens)', fmt: null},
+  {label: 'dd mm yyyy (lowercase dd)', fmt: 'dd mm yyyy', custom:true},
+  {label: 'DD MM YYYY', fmt: 'DD MM YYYY'},
+  {label: 'MM-DD-YYYY', fmt: 'MM-DD-YYYY'},
+  {label: 'MMM DD, YYYY', fmt: 'MMM DD, YYYY'},
+  {label: 'MMMM D, YYYY', fmt: 'MMMM D, YYYY'},
+  {label: 'ISO 8601', fmt: 'iso'},
+  {label: 'Locale date (Intl)', fmt: 'locale'},
+  {label: 'Locale date + time', fmt: 'localeTime'},
+  {label: 'RFC 2822', fmt: 'rfc'},
+  {label: 'Unix timestamp (seconds)', fmt: 'unix'},
+  {label: "Short (two-digit year)", fmt: 'MM/DD/YY'}
+];
+
+const formatsEl = document.getElementById('formats');
+const datePicker = document.getElementById('datePicker');
+const dateTime = document.getElementById('dateTime');
+const localeSelect = document.getElementById('localeSelect');
+const customFormat = document.getElementById('customFormat');
+const selectedHuman = document.getElementById('selectedHuman');
+
+// Build UI blocks
+formatsList.forEach(item =>{
+  const div = document.createElement('div'); div.className='fmt';
+  const label = document.createElement('div'); label.className='label'; label.textContent = item.label;
+  const value = document.createElement('div'); value.className='value'; value.textContent = '-';
+  div.appendChild(label); div.appendChild(value);
+  formatsEl.appendChild(div);
+  item._el = value;
+});
+
+function getSelectedDate(){
+  // prefer datetime-local if present, else date
+  if(dateTime.value){
+    const dt = new Date(dateTime.value);
+    if(!isNaN(dt)) return dt;
+  }
+  if(datePicker.value){
+    // date input interpreted as local midnight
+    const d = new Date(datePicker.value + 'T00:00:00');
+    if(!isNaN(d)) return d;
+  }
+  return new Date(); // fallback to now
+}
+
+function update(){
+  const d = getSelectedDate();
+  const locale = (localeSelect.value==='auto')?navigator.language:localeSelect.value;
+  selectedHuman.textContent = d.toString() + ' ('+locale +')';
+
+  formatsList.forEach(item =>{
+    let out='-';
+    if(item.fmt===null){
+      // custom
+      out = formatWithTokens(customFormat.value, d, locale);
+    } else if(item.fmt === 'dd mm yyyy'){
+      // show lowercase dd example = day without zero? we'll treat dd lowercase as numeric day without leading zero
+      out = `${d.getDate()} ${d.getMonth()+1} ${d.getFullYear()}`;
+    } else if(item.fmt === 'DD MM YYYY' || item.fmt.match(/DD|MM|YYYY/)){
+      out = formatWithTokens(item.fmt.replace(/-/g,' ').replace(/,/g,','), d, locale);
+    } else if(item.fmt === 'MM-DD-YYYY'){
+      out = `${z(d.getMonth()+1)}-${z(d.getDate())}-${d.getFullYear()}`;
+    } else if(item.fmt === 'MMM DD, YYYY'){
+      out = formatWithTokens('MMM DD, YYYY', d, locale);
+    } else if(item.fmt === 'MMMM D, YYYY'){
+      out = formatWithTokens('MMMM D, YYYY', d, locale);
+    } else if(item.fmt === 'iso'){
+      out = d.toISOString();
+    } else if(item.fmt === 'locale'){
+      out = new Intl.DateTimeFormat(locale).format(d);
+    } else if(item.fmt === 'localeTime'){
+      out = new Intl.DateTimeFormat(locale,{dateStyle:'medium',timeStyle:'short'}).format(d);
+    } else if(item.fmt === 'rfc'){
+      out = d.toUTCString();
+    } else if(item.fmt === 'unix'){
+      out = Math.floor(d.getTime()/1000);
+    } else if(item.fmt === 'MM/DD/YY'){
+      out = `${z(d.getMonth()+1)}/${z(d.getDate())}/${String(d.getFullYear()).slice(-2)}`;
+    }
+    item._el.textContent = out;
+  });
+}
+
+// events
+[datePicker, dateTime, localeSelect, customFormat].forEach(el=>el.addEventListener('input', update));
+
+// initialize with today
+(function init(){
+  const now = new Date();
+  // set date input to today in YYYY-MM-DD
+  const yyyy = now.getFullYear();
+  const mm = z(now.getMonth()+1);
+  const dd = z(now.getDate());
+  datePicker.value = `${yyyy}-${mm}-${dd}`;
+  // no default datetime
+  update();
+})();
+</script>
+</body>
+</html>
