@@ -25,11 +25,13 @@
         margin-bottom: 12px;
         text-align: center;
       }
-      .delimiter-container {
+      .delimiter-container,
+      .custom-date-container {
         margin-bottom: 20px;
         text-align: center;
       }
-      input[type="text"] {
+      input[type="text"],
+      input[type="date"] {
         padding: 6px 10px;
         border-radius: 6px;
         border: none;
@@ -88,56 +90,70 @@
     <div class="wrap">
       <h1>Date Picker Test</h1>
 
+      <!-- delimiter input -->
       <div class="delimiter-container">
         <input type="text" id="delimiter" maxlength="5" placeholder="space" />
         <button id="applyDelimiter">Apply Delimiter</button>
       </div>
 
+      <!-- custom date input -->
+      <div class="custom-date-container">
+        <input type="date" id="customDateInput" />
+        <button id="applyCustomDate">Apply Custom Date</button>
+      </div>
+
+      <!-- built-in cards -->
       <div class="card">
         <p>Random Date:</p>
-        <div id="randomDate" style="margin-bottom: 12px; font-weight: 600"></div>
+        <div id="randomDate"></div>
         <div class="formats" id="randomFormats"></div>
       </div>
 
       <div class="card">
         <p>Yesterday's Date:</p>
-        <div id="yesterdayDate" style="margin-bottom: 12px; font-weight: 600"></div>
+        <div id="yesterdayDate"></div>
         <div class="formats" id="yesterdayFormats"></div>
       </div>
 
       <div class="card">
         <p>Today's Date:</p>
-        <div id="todayDate" style="margin-bottom: 12px; font-weight: 600"></div>
+        <div id="todayDate"></div>
         <div class="formats" id="todayFormats"></div>
       </div>
 
       <div class="card">
         <p>Tomorrow's Date:</p>
-        <div id="tomorrowDate" style="margin-bottom: 12px; font-weight: 600"></div>
+        <div id="tomorrowDate"></div>
         <div class="formats" id="tomorrowFormats"></div>
       </div>
 
       <div class="card">
         <p>One Week from Now:</p>
-        <div id="weekFromNowDate" style="margin-bottom: 12px; font-weight: 600"></div>
+        <div id="weekFromNowDate"></div>
         <div class="formats" id="weekFromNowFormats"></div>
       </div>
 
       <div class="card">
         <p>One Month from Now:</p>
-        <div id="monthFromNowDate" style="margin-bottom: 12px; font-weight: 600"></div>
+        <div id="monthFromNowDate"></div>
         <div class="formats" id="monthFromNowFormats"></div>
       </div>
 
       <div class="card">
         <p>One Year from Now:</p>
-        <div id="yearFromNowDate" style="margin-bottom: 12px; font-weight: 600"></div>
+        <div id="yearFromNowDate"></div>
         <div class="formats" id="yearFromNowFormats"></div>
       </div>
 
       <div class="card">
         <p>Timestamps:</p>
         <div class="formats" id="timestamps"></div>
+      </div>
+
+      <!-- new custom date results -->
+      <div class="card">
+        <p>Custom Date Results:</p>
+        <div class="formats" id="customDateResults"></div>
       </div>
     </div>
 
@@ -153,7 +169,7 @@
           z(d.getMonth() + 1) +
           "-" +
           d.getFullYear() +
-          "T" +
+          " " +
           z(d.getHours()) +
           ":" +
           z(d.getMinutes()) +
@@ -184,13 +200,10 @@
       yesterdayD.setDate(todayD.getDate() - 1);
       const tomorrowD = new Date(todayD);
       tomorrowD.setDate(todayD.getDate() + 1);
-
       const weekFromNowD = new Date(todayD);
       weekFromNowD.setDate(todayD.getDate() + 7);
-
       const monthFromNowD = new Date(todayD);
       monthFromNowD.setMonth(todayD.getMonth() + 1);
-
       const yearFromNowD = new Date(todayD);
       yearFromNowD.setFullYear(todayD.getFullYear() + 1);
 
@@ -239,7 +252,6 @@
       }
 
       function renderAll() {
-        console.log("renderAll");
         const delimiterInput = document.getElementById("delimiter").value;
         const delimiter =
           delimiterInput.length > 0 && delimiterInput.length <= 5
@@ -251,8 +263,10 @@
         const todayFormatsEl = document.getElementById("todayFormats");
         const tomorrowFormatsEl = document.getElementById("tomorrowFormats");
         const weekFromNowFormatsEl = document.getElementById("weekFromNowFormats");
-        const monthFromNowFormatsEl = document.getElementById("monthFromNowFormats");
-        const yearFromNowFormatsEl = document.getElementById("yearFromNowFormats");
+        const monthFromNowFormatsEl =
+          document.getElementById("monthFromNowFormats");
+        const yearFromNowFormatsEl =
+          document.getElementById("yearFromNowFormats");
         const timestampsEl = document.getElementById("timestamps");
 
         randomFormatsEl.innerHTML = "";
@@ -285,7 +299,7 @@
           makeDiv(yearFromNowD, yearFromNowFormatsEl);
         });
 
-        // timestamp section (formatted dd-MM-yyyyTHH:mm:ss)
+        // timestamps
         const tsList = [
           { label: "Today", date: todayD },
           { label: "Yesterday", date: yesterdayD },
@@ -294,7 +308,6 @@
           { label: "A month from now", date: monthFromNowD },
           { label: "A year from now", date: yearFromNowD },
         ];
-
         tsList.forEach((item) => {
           const div = document.createElement("div");
           div.className = "fmt";
@@ -305,9 +318,66 @@
         });
       }
 
+      function renderCustomDate(baseDate) {
+        const container = document.getElementById("customDateResults");
+        container.innerHTML = "";
+
+        const customDates = [
+          { label: "Selected Date", date: new Date(baseDate) },
+          {
+            label: "Day Before",
+            date: new Date(baseDate.getTime() - 24 * 60 * 60 * 1000),
+          },
+          {
+            label: "Day After",
+            date: new Date(baseDate.getTime() + 24 * 60 * 60 * 1000),
+          },
+          {
+            label: "A Week After",
+            date: new Date(baseDate.getTime() + 7 * 24 * 60 * 60 * 1000),
+          },
+          {
+            label: "A Month After",
+            date: new Date(
+              baseDate.getFullYear(),
+              baseDate.getMonth() + 1,
+              baseDate.getDate()
+            ),
+          },
+          {
+            label: "A Year After",
+            date: new Date(
+              baseDate.getFullYear() + 1,
+              baseDate.getMonth(),
+              baseDate.getDate()
+            ),
+          },
+        ];
+
+        customDates.forEach((item) => {
+          const div = document.createElement("div");
+          div.className = "fmt";
+          div.innerHTML = `<div class="label">${item.label}</div><div class="value">${formatTimestamp(
+            item.date
+          )}</div>`;
+          container.appendChild(div);
+        });
+      }
+
       document
         .getElementById("applyDelimiter")
         .addEventListener("click", renderAll);
+
+      document
+        .getElementById("applyCustomDate")
+        .addEventListener("click", () => {
+          const input = document.getElementById("customDateInput").value;
+          if (input) {
+            const d = new Date(input);
+            renderCustomDate(d);
+          }
+        });
+
       renderAll();
     </script>
   </body>
