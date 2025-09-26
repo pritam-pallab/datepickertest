@@ -118,6 +118,24 @@
       </div>
 
       <div class="card">
+        <p>One Week from Now:</p>
+        <div id="weekFromNowDate" style="margin-bottom: 12px; font-weight: 600"></div>
+        <div class="formats" id="weekFromNowFormats"></div>
+      </div>
+
+      <div class="card">
+        <p>One Month from Now:</p>
+        <div id="monthFromNowDate" style="margin-bottom: 12px; font-weight: 600"></div>
+        <div class="formats" id="monthFromNowFormats"></div>
+      </div>
+
+      <div class="card">
+        <p>One Year from Now:</p>
+        <div id="yearFromNowDate" style="margin-bottom: 12px; font-weight: 600"></div>
+        <div class="formats" id="yearFromNowFormats"></div>
+      </div>
+
+      <div class="card">
         <p>Timestamps:</p>
         <div class="formats" id="timestamps"></div>
       </div>
@@ -126,6 +144,22 @@
     <script>
       function z(n, len = 2) {
         return String(n).padStart(len, "0");
+      }
+
+      function formatTimestamp(d) {
+        return (
+          z(d.getDate()) +
+          "-" +
+          z(d.getMonth() + 1) +
+          "-" +
+          d.getFullYear() +
+          "T" +
+          z(d.getHours()) +
+          ":" +
+          z(d.getMinutes()) +
+          ":" +
+          z(d.getSeconds())
+        );
       }
 
       function randomDate() {
@@ -164,11 +198,17 @@
       const todayDateEl = document.getElementById("todayDate");
       const yesterdayDateEl = document.getElementById("yesterdayDate");
       const tomorrowDateEl = document.getElementById("tomorrowDate");
+      const weekFromNowDateEl = document.getElementById("weekFromNowDate");
+      const monthFromNowDateEl = document.getElementById("monthFromNowDate");
+      const yearFromNowDateEl = document.getElementById("yearFromNowDate");
 
       randomDateEl.textContent = randomD.toDateString();
       yesterdayDateEl.textContent = yesterdayD.toDateString();
       todayDateEl.textContent = todayD.toDateString();
       tomorrowDateEl.textContent = tomorrowD.toDateString();
+      weekFromNowDateEl.textContent = weekFromNowD.toDateString();
+      monthFromNowDateEl.textContent = monthFromNowD.toDateString();
+      yearFromNowDateEl.textContent = yearFromNowD.toDateString();
 
       function formatDate(d, label, delimiter) {
         const monthShort = new Intl.DateTimeFormat("en-US", {
@@ -210,12 +250,18 @@
         const yesterdayFormatsEl = document.getElementById("yesterdayFormats");
         const todayFormatsEl = document.getElementById("todayFormats");
         const tomorrowFormatsEl = document.getElementById("tomorrowFormats");
+        const weekFromNowFormatsEl = document.getElementById("weekFromNowFormats");
+        const monthFromNowFormatsEl = document.getElementById("monthFromNowFormats");
+        const yearFromNowFormatsEl = document.getElementById("yearFromNowFormats");
         const timestampsEl = document.getElementById("timestamps");
 
         randomFormatsEl.innerHTML = "";
         yesterdayFormatsEl.innerHTML = "";
         todayFormatsEl.innerHTML = "";
         tomorrowFormatsEl.innerHTML = "";
+        weekFromNowFormatsEl.innerHTML = "";
+        monthFromNowFormatsEl.innerHTML = "";
+        yearFromNowFormatsEl.innerHTML = "";
         timestampsEl.innerHTML = "";
 
         formatsList.forEach((item) => {
@@ -234,9 +280,12 @@
           makeDiv(yesterdayD, yesterdayFormatsEl);
           makeDiv(todayD, todayFormatsEl);
           makeDiv(tomorrowD, tomorrowFormatsEl);
+          makeDiv(weekFromNowD, weekFromNowFormatsEl);
+          makeDiv(monthFromNowD, monthFromNowFormatsEl);
+          makeDiv(yearFromNowD, yearFromNowFormatsEl);
         });
 
-        // timestamp section (only raw timestamps)
+        // timestamp section (formatted dd-MM-yyyyTHH:mm:ss)
         const tsList = [
           { label: "Today", date: todayD },
           { label: "Yesterday", date: yesterdayD },
@@ -249,7 +298,9 @@
         tsList.forEach((item) => {
           const div = document.createElement("div");
           div.className = "fmt";
-          div.innerHTML = `<div class="label">${item.label}</div><div class="value">${item.date.toString()}</div>`;
+          div.innerHTML = `<div class="label">${item.label}</div><div class="value">${formatTimestamp(
+            item.date
+          )}</div>`;
           timestampsEl.appendChild(div);
         });
       }
