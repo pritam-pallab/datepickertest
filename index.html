@@ -155,12 +155,26 @@
         <p>Custom Date Results:</p>
         <div class="formats" id="customDateResults"></div>
       </div>
+
+      <div class="card">
+        <p>Current Timezone:</p>
+        <div id="currentTimezone"></div>
+      </div>
     </div>
 
     <script>
       function z(n, len = 2) {
         return String(n).padStart(len, "0");
       }
+
+      function renderTimezone() {
+        const tzEl = document.getElementById("currentTimezone");
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        tzEl.textContent = timeZone;
+      }
+
+      // Call it on page load
+      renderTimezone();
 
       function formatTimestamp(d) {
         return (
@@ -262,9 +276,11 @@
         const yesterdayFormatsEl = document.getElementById("yesterdayFormats");
         const todayFormatsEl = document.getElementById("todayFormats");
         const tomorrowFormatsEl = document.getElementById("tomorrowFormats");
-        const weekFromNowFormatsEl = document.getElementById("weekFromNowFormats");
-        const monthFromNowFormatsEl =
-          document.getElementById("monthFromNowFormats");
+        const weekFromNowFormatsEl =
+          document.getElementById("weekFromNowFormats");
+        const monthFromNowFormatsEl = document.getElementById(
+          "monthFromNowFormats"
+        );
         const yearFromNowFormatsEl =
           document.getElementById("yearFromNowFormats");
         const timestampsEl = document.getElementById("timestamps");
@@ -282,7 +298,9 @@
           const makeDiv = (d, el) => {
             const div = document.createElement("div");
             div.className = "fmt";
-            div.innerHTML = `<div class="label">${item.label}</div><div class="value">${formatDate(
+            div.innerHTML = `<div class="label">${
+              item.label
+            }</div><div class="value">${formatDate(
               d,
               item.label,
               delimiter
@@ -311,9 +329,9 @@
         tsList.forEach((item) => {
           const div = document.createElement("div");
           div.className = "fmt";
-          div.innerHTML = `<div class="label">${item.label}</div><div class="value">${formatTimestamp(
-            item.date
-          )}</div>`;
+          div.innerHTML = `<div class="label">${
+            item.label
+          }</div><div class="value">${formatTimestamp(item.date)}</div>`;
           timestampsEl.appendChild(div);
         });
       }
@@ -357,9 +375,9 @@
         customDates.forEach((item) => {
           const div = document.createElement("div");
           div.className = "fmt";
-          div.innerHTML = `<div class="label">${item.label}</div><div class="value">${formatTimestamp(
-            item.date
-          )}</div>`;
+          div.innerHTML = `<div class="label">${
+            item.label
+          }</div><div class="value">${formatTimestamp(item.date)}</div>`;
           container.appendChild(div);
         });
       }
@@ -377,6 +395,75 @@
             renderCustomDate(d);
           }
         });
+
+      const timezones = [
+        "Asia/Kolkata",
+        "Asia/Tokyo",
+        "Europe/London",
+        "UTC",
+        "Pacific/Kiritimati", // UTC+14 furthest ahead
+        "Pacific/Niue", // UTC-11 furthest behind
+      ];
+
+      function formatTimestampTZ(date, tz) {
+        return new Intl.DateTimeFormat("en-GB", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          timeZone: tz,
+        }).format(date);
+      }
+
+      function renderCustomDate(baseDate) {
+        const container = document.getElementById("customDateResults");
+        container.innerHTML = "";
+
+        const customDates = [
+          { label: "Selected Date", date: new Date(baseDate) },
+          {
+            label: "Day Before",
+            date: new Date(baseDate.getTime() - 24 * 60 * 60 * 1000),
+          },
+          {
+            label: "Day After",
+            date: new Date(baseDate.getTime() + 24 * 60 * 60 * 1000),
+          },
+          {
+            label: "A Week After",
+            date: new Date(baseDate.getTime() + 7 * 24 * 60 * 60 * 1000),
+          },
+          {
+            label: "A Month After",
+            date: new Date(
+              baseDate.getFullYear(),
+              baseDate.getMonth() + 1,
+              baseDate.getDate()
+            ),
+          },
+          {
+            label: "A Year After",
+            date: new Date(
+              baseDate.getFullYear() + 1,
+              baseDate.getMonth(),
+              baseDate.getDate()
+            ),
+          },
+        ];
+
+        customDates.forEach((item) => {
+          timezones.forEach((tz) => {
+            const div = document.createElement("div");
+            div.className = "fmt";
+            div.innerHTML = `<div class="label">${
+              item.label
+            } (${tz})</div><div class="value">${formatTimestampTZ(
+              item.date,
+              tz
+            )}</div>`;
+            container.appendChild(div);
+          });
+        });
+      }
 
       renderAll();
     </script>
