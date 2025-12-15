@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Date Picker Test</title>
+
     <style>
       body {
         font-family: Inter, system-ui, Arial;
@@ -86,23 +87,21 @@
       }
     </style>
   </head>
+
   <body>
     <div class="wrap">
       <h1>Date Picker Test</h1>
 
-      <!-- delimiter input -->
       <div class="delimiter-container">
         <input type="text" id="delimiter" maxlength="5" placeholder="space" />
         <button id="applyDelimiter">Apply Delimiter</button>
       </div>
 
-      <!-- custom date input -->
       <div class="custom-date-container">
         <input type="date" id="customDateInput" />
         <button id="applyCustomDate">Apply Custom Date</button>
       </div>
 
-      <!-- built-in cards -->
       <div class="card">
         <p>Random Date:</p>
         <div id="randomDate"></div>
@@ -110,19 +109,19 @@
       </div>
 
       <div class="card">
-        <p>Yesterday's Date:</p>
+        <p>Yesterday:</p>
         <div id="yesterdayDate"></div>
         <div class="formats" id="yesterdayFormats"></div>
       </div>
 
       <div class="card">
-        <p>Today's Date:</p>
+        <p>Today:</p>
         <div id="todayDate"></div>
         <div class="formats" id="todayFormats"></div>
       </div>
 
       <div class="card">
-        <p>Tomorrow's Date:</p>
+        <p>Tomorrow:</p>
         <div id="tomorrowDate"></div>
         <div class="formats" id="tomorrowFormats"></div>
       </div>
@@ -150,9 +149,8 @@
         <div class="formats" id="timestamps"></div>
       </div>
 
-      <!-- new custom date results -->
       <div class="card">
-        <p>Custom Date Results:</p>
+        <p>Custom Date (Timezones):</p>
         <div class="formats" id="customDateResults"></div>
       </div>
 
@@ -163,307 +161,136 @@
     </div>
 
     <script>
-      function z(n, len = 2) {
-        return String(n).padStart(len, "0");
-      }
-
-      function renderTimezone() {
-        const tzEl = document.getElementById("currentTimezone");
-        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        tzEl.textContent = timeZone;
-      }
-
-      // Call it on page load
-      renderTimezone();
-
-      function formatTimestamp(d) {
-        return (
-          z(d.getDate()) +
-          "-" +
-          z(d.getMonth() + 1) +
-          "-" +
-          d.getFullYear() +
-          " " +
-          z(d.getHours()) +
-          ":" +
-          z(d.getMinutes()) +
-          ":" +
-          z(d.getSeconds())
-        );
-      }
-
-      function randomDate() {
-        const start = new Date(2000, 0, 1);
-        const end = new Date(2030, 11, 31);
-        return new Date(
-          start.getTime() + Math.random() * (end.getTime() - start.getTime())
-        );
-      }
+      const z = (n) => String(n).padStart(2, "0");
 
       const formatsList = [
-        { label: "dd mm yyyy", fmt: "dd mm yyyy" },
-        { label: "dd mmm yyyy", fmt: "dd mmm yyyy" },
-        { label: "mm dd yyyy", fmt: "mm dd yyyy" },
-        { label: "mmm dd yyyy", fmt: "mmm dd yyyy" },
-        { label: "yyyy mm dd", fmt: "yyyy mm dd" },
+        { label: "dd mm yyyy" },
+        { label: "dd mmm yyyy" },
+        { label: "dd mmmm yyyy" },   // NEW
+        { label: "mm dd yyyy" },
+        { label: "mmm dd yyyy" },
+        { label: "mmmm dd yyyy" },   // NEW
+        { label: "yyyy mm dd" },
+        { label: "yyyy mmmm dd" }    // NEW
       ];
 
-      const randomD = randomDate();
-      const todayD = new Date();
-      const yesterdayD = new Date(todayD);
-      yesterdayD.setDate(todayD.getDate() - 1);
-      const tomorrowD = new Date(todayD);
-      tomorrowD.setDate(todayD.getDate() + 1);
-      const weekFromNowD = new Date(todayD);
-      weekFromNowD.setDate(todayD.getDate() + 7);
-      const monthFromNowD = new Date(todayD);
-      monthFromNowD.setMonth(todayD.getMonth() + 1);
-      const yearFromNowD = new Date(todayD);
-      yearFromNowD.setFullYear(todayD.getFullYear() + 1);
-
-      const randomDateEl = document.getElementById("randomDate");
-      const todayDateEl = document.getElementById("todayDate");
-      const yesterdayDateEl = document.getElementById("yesterdayDate");
-      const tomorrowDateEl = document.getElementById("tomorrowDate");
-      const weekFromNowDateEl = document.getElementById("weekFromNowDate");
-      const monthFromNowDateEl = document.getElementById("monthFromNowDate");
-      const yearFromNowDateEl = document.getElementById("yearFromNowDate");
-
-      randomDateEl.textContent = randomD.toDateString();
-      yesterdayDateEl.textContent = yesterdayD.toDateString();
-      todayDateEl.textContent = todayD.toDateString();
-      tomorrowDateEl.textContent = tomorrowD.toDateString();
-      weekFromNowDateEl.textContent = weekFromNowD.toDateString();
-      monthFromNowDateEl.textContent = monthFromNowD.toDateString();
-      yearFromNowDateEl.textContent = yearFromNowD.toDateString();
-
       function formatDate(d, label, delimiter) {
-        const monthShort = new Intl.DateTimeFormat("en-US", {
-          month: "short",
-        }).format(d);
+        const monthShort = new Intl.DateTimeFormat("en-US", { month: "short" }).format(d);
+        const monthLong  = new Intl.DateTimeFormat("en-US", { month: "long" }).format(d);
+
         switch (label) {
           case "dd mm yyyy":
-            return `${z(d.getDate())}${delimiter}${z(
-              d.getMonth() + 1
-            )}${delimiter}${d.getFullYear()}`;
+            return `${z(d.getDate())}${delimiter}${z(d.getMonth() + 1)}${delimiter}${d.getFullYear()}`;
+
           case "dd mmm yyyy":
-            return `${z(
-              d.getDate()
-            )}${delimiter}${monthShort}${delimiter}${d.getFullYear()}`;
+            return `${z(d.getDate())}${delimiter}${monthShort}${delimiter}${d.getFullYear()}`;
+
+          case "dd mmmm yyyy":
+            return `${z(d.getDate())}${delimiter}${monthLong}${delimiter}${d.getFullYear()}`;
+
           case "mm dd yyyy":
-            return `${z(d.getMonth() + 1)}${delimiter}${z(
-              d.getDate()
-            )}${delimiter}${d.getFullYear()}`;
+            return `${z(d.getMonth() + 1)}${delimiter}${z(d.getDate())}${delimiter}${d.getFullYear()}`;
+
           case "mmm dd yyyy":
-            return `${monthShort}${delimiter}${z(
-              d.getDate()
-            )}${delimiter}${d.getFullYear()}`;
+            return `${monthShort}${delimiter}${z(d.getDate())}${delimiter}${d.getFullYear()}`;
+
+          case "mmmm dd yyyy":
+            return `${monthLong}${delimiter}${z(d.getDate())}${delimiter}${d.getFullYear()}`;
+
           case "yyyy mm dd":
-            return `${d.getFullYear()}${delimiter}${z(
-              d.getMonth() + 1
-            )}${delimiter}${z(d.getDate())}`;
+            return `${d.getFullYear()}${delimiter}${z(d.getMonth() + 1)}${delimiter}${z(d.getDate())}`;
+
+          case "yyyy mmmm dd":
+            return `${d.getFullYear()}${delimiter}${monthLong}${delimiter}${z(d.getDate())}`;
         }
       }
 
+      function formatTimestamp(d) {
+        return `${z(d.getDate())}-${z(d.getMonth() + 1)}-${d.getFullYear()} ${z(d.getHours())}:${z(d.getMinutes())}:${z(d.getSeconds())}`;
+      }
+
+      function renderTimezone() {
+        document.getElementById("currentTimezone").textContent =
+          Intl.DateTimeFormat().resolvedOptions().timeZone;
+      }
+
+      renderTimezone();
+
+      const today = new Date();
+      const dates = {
+        random: new Date(2000 + Math.random() * 30, Math.random() * 12, Math.random() * 28),
+        yesterday: new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1),
+        today,
+        tomorrow: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1),
+        week: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 7),
+        month: new Date(today.getFullYear(), today.getMonth() + 1, today.getDate()),
+        year: new Date(today.getFullYear() + 1, today.getMonth(), today.getDate())
+      };
+
       function renderAll() {
-        const delimiterInput = document.getElementById("delimiter").value;
-        const delimiter =
-          delimiterInput.length > 0 && delimiterInput.length <= 5
-            ? delimiterInput
-            : " ";
+        const delimiter = document.getElementById("delimiter").value || " ";
 
-        const randomFormatsEl = document.getElementById("randomFormats");
-        const yesterdayFormatsEl = document.getElementById("yesterdayFormats");
-        const todayFormatsEl = document.getElementById("todayFormats");
-        const tomorrowFormatsEl = document.getElementById("tomorrowFormats");
-        const weekFromNowFormatsEl =
-          document.getElementById("weekFromNowFormats");
-        const monthFromNowFormatsEl = document.getElementById(
-          "monthFromNowFormats"
-        );
-        const yearFromNowFormatsEl =
-          document.getElementById("yearFromNowFormats");
-        const timestampsEl = document.getElementById("timestamps");
-
-        randomFormatsEl.innerHTML = "";
-        yesterdayFormatsEl.innerHTML = "";
-        todayFormatsEl.innerHTML = "";
-        tomorrowFormatsEl.innerHTML = "";
-        weekFromNowFormatsEl.innerHTML = "";
-        monthFromNowFormatsEl.innerHTML = "";
-        yearFromNowFormatsEl.innerHTML = "";
-        timestampsEl.innerHTML = "";
-
-        formatsList.forEach((item) => {
-          const makeDiv = (d, el) => {
-            const div = document.createElement("div");
-            div.className = "fmt";
-            div.innerHTML = `<div class="label">${
-              item.label
-            }</div><div class="value">${formatDate(
-              d,
-              item.label,
-              delimiter
-            )}</div>`;
-            el.appendChild(div);
-          };
-
-          makeDiv(randomD, randomFormatsEl);
-          makeDiv(yesterdayD, yesterdayFormatsEl);
-          makeDiv(todayD, todayFormatsEl);
-          makeDiv(tomorrowD, tomorrowFormatsEl);
-          makeDiv(weekFromNowD, weekFromNowFormatsEl);
-          makeDiv(monthFromNowD, monthFromNowFormatsEl);
-          makeDiv(yearFromNowD, yearFromNowFormatsEl);
-        });
-
-        // timestamps
-        const tsList = [
-          { label: "Today", date: todayD },
-          { label: "Yesterday", date: yesterdayD },
-          { label: "Tomorrow", date: tomorrowD },
-          { label: "A week from now", date: weekFromNowD },
-          { label: "A month from now", date: monthFromNowD },
-          { label: "A year from now", date: yearFromNowD },
-        ];
-        tsList.forEach((item) => {
-          const div = document.createElement("div");
-          div.className = "fmt";
-          div.innerHTML = `<div class="label">${
-            item.label
-          }</div><div class="value">${formatTimestamp(item.date)}</div>`;
-          timestampsEl.appendChild(div);
-        });
-      }
-
-      function renderCustomDate(baseDate) {
-        const container = document.getElementById("customDateResults");
-        container.innerHTML = "";
-
-        const customDates = [
-          { label: "Selected Date", date: new Date(baseDate) },
-          {
-            label: "Day Before",
-            date: new Date(baseDate.getTime() - 24 * 60 * 60 * 1000),
-          },
-          {
-            label: "Day After",
-            date: new Date(baseDate.getTime() + 24 * 60 * 60 * 1000),
-          },
-          {
-            label: "A Week After",
-            date: new Date(baseDate.getTime() + 7 * 24 * 60 * 60 * 1000),
-          },
-          {
-            label: "A Month After",
-            date: new Date(
-              baseDate.getFullYear(),
-              baseDate.getMonth() + 1,
-              baseDate.getDate()
-            ),
-          },
-          {
-            label: "A Year After",
-            date: new Date(
-              baseDate.getFullYear() + 1,
-              baseDate.getMonth(),
-              baseDate.getDate()
-            ),
-          },
+        const map = [
+          ["random", "randomFormats"],
+          ["yesterday", "yesterdayFormats"],
+          ["today", "todayFormats"],
+          ["tomorrow", "tomorrowFormats"],
+          ["week", "weekFromNowFormats"],
+          ["month", "monthFromNowFormats"],
+          ["year", "yearFromNowFormats"]
         ];
 
-        customDates.forEach((item) => {
-          const div = document.createElement("div");
-          div.className = "fmt";
-          div.innerHTML = `<div class="label">${
-            item.label
-          }</div><div class="value">${formatTimestamp(item.date)}</div>`;
-          container.appendChild(div);
-        });
-      }
-
-      document
-        .getElementById("applyDelimiter")
-        .addEventListener("click", renderAll);
-
-      document
-        .getElementById("applyCustomDate")
-        .addEventListener("click", () => {
-          const input = document.getElementById("customDateInput").value;
-          if (input) {
-            const d = new Date(input);
-            renderCustomDate(d);
-          }
-        });
-
-      const timezones = [
-        "Asia/Kolkata",
-        "Asia/Tokyo",
-        "Europe/London",
-        "UTC",
-        "Pacific/Kiritimati", // UTC+14 furthest ahead
-        "Pacific/Niue", // UTC-11 furthest behind
-      ];
-
-      function formatTimestampTZ(date, tz) {
-        return new Intl.DateTimeFormat("en-GB", {
-          year: "numeric",
-          month: "2-digit",
-          day: "2-digit",
-          timeZone: tz,
-        }).format(date);
-      }
-
-      function renderCustomDate(baseDate) {
-        const container = document.getElementById("customDateResults");
-        container.innerHTML = "";
-
-        const customDates = [
-          { label: "Selected Date", date: new Date(baseDate) },
-          {
-            label: "Day Before",
-            date: new Date(baseDate.getTime() - 24 * 60 * 60 * 1000),
-          },
-          {
-            label: "Day After",
-            date: new Date(baseDate.getTime() + 24 * 60 * 60 * 1000),
-          },
-          {
-            label: "A Week After",
-            date: new Date(baseDate.getTime() + 7 * 24 * 60 * 60 * 1000),
-          },
-          {
-            label: "A Month After",
-            date: new Date(
-              baseDate.getFullYear(),
-              baseDate.getMonth() + 1,
-              baseDate.getDate()
-            ),
-          },
-          {
-            label: "A Year After",
-            date: new Date(
-              baseDate.getFullYear() + 1,
-              baseDate.getMonth(),
-              baseDate.getDate()
-            ),
-          },
-        ];
-
-        customDates.forEach((item) => {
-          timezones.forEach((tz) => {
-            const div = document.createElement("div");
-            div.className = "fmt";
-            div.innerHTML = `<div class="label">${
-              item.label
-            } (${tz})</div><div class="value">${formatTimestampTZ(
-              item.date,
-              tz
-            )}</div>`;
-            container.appendChild(div);
+        map.forEach(([key, elId]) => {
+          const el = document.getElementById(elId);
+          el.innerHTML = "";
+          formatsList.forEach(f => {
+            el.innerHTML += `
+              <div class="fmt">
+                <div class="label">${f.label}</div>
+                <div class="value">${formatDate(dates[key], f.label, delimiter)}</div>
+              </div>`;
           });
         });
+
+        document.getElementById("timestamps").innerHTML = `
+          <div class="fmt"><div class="label">Today</div><div class="value">${formatTimestamp(today)}</div></div>
+        `;
       }
+
+      document.getElementById("applyDelimiter").onclick = renderAll;
+
+      document.getElementById("applyCustomDate").onclick = () => {
+        const val = document.getElementById("customDateInput").value;
+        if (!val) return;
+
+        const base = new Date(val);
+        const zones = ["Asia/Kolkata", "UTC", "Europe/London", "Asia/Tokyo"];
+        const out = document.getElementById("customDateResults");
+        out.innerHTML = "";
+
+        zones.forEach(tz => {
+          out.innerHTML += `
+            <div class="fmt">
+              <div class="label">${tz}</div>
+              <div class="value">
+                ${new Intl.DateTimeFormat("en-GB", {
+                  year: "numeric",
+                  month: "2-digit",
+                  day: "2-digit",
+                  timeZone: tz
+                }).format(base)}
+              </div>
+            </div>`;
+        });
+      };
+
+      document.getElementById("randomDate").textContent = dates.random.toDateString();
+      document.getElementById("yesterdayDate").textContent = dates.yesterday.toDateString();
+      document.getElementById("todayDate").textContent = dates.today.toDateString();
+      document.getElementById("tomorrowDate").textContent = dates.tomorrow.toDateString();
+      document.getElementById("weekFromNowDate").textContent = dates.week.toDateString();
+      document.getElementById("monthFromNowDate").textContent = dates.month.toDateString();
+      document.getElementById("yearFromNowDate").textContent = dates.year.toDateString();
 
       renderAll();
     </script>
