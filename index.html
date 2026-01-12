@@ -150,7 +150,7 @@
       </div>
 
       <div class="card">
-        <p>Custom Date (Timezones):</p>
+        <p>Custom Date:</p>
         <div class="formats" id="customDateResults"></div>
       </div>
 
@@ -264,22 +264,15 @@
         if (!val) return;
 
         const base = new Date(val);
-        const zones = ["Asia/Kolkata", "UTC", "Europe/London", "Asia/Tokyo"];
+        const delimiter = document.getElementById("delimiter").value || " ";
         const out = document.getElementById("customDateResults");
         out.innerHTML = "";
 
-        zones.forEach(tz => {
+        formatsList.forEach(f => {
           out.innerHTML += `
             <div class="fmt">
-              <div class="label">${tz}</div>
-              <div class="value">
-                ${new Intl.DateTimeFormat("en-GB", {
-                  year: "numeric",
-                  month: "2-digit",
-                  day: "2-digit",
-                  timeZone: tz
-                }).format(base)}
-              </div>
+              <div class="label">${f.label}</div>
+              <div class="value">${formatDate(base, f.label, delimiter)}</div>
             </div>`;
         });
       };
