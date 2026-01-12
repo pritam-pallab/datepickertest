@@ -170,6 +170,7 @@
         { label: "mm dd yyyy" },
         { label: "mmm dd yyyy" },
         { label: "mmmm dd yyyy" },   // NEW
+        { label: "mmmm d, yyyy" },   // Single digit date
         { label: "yyyy mm dd" },
         { label: "yyyy mmmm dd" }    // NEW
       ];
@@ -196,6 +197,9 @@
 
           case "mmmm dd yyyy":
             return `${monthLong}${delimiter}${z(d.getDate())}${delimiter}${d.getFullYear()}`;
+
+          case "mmmm d, yyyy":
+            return `${monthLong} ${d.getDate()}, ${d.getFullYear()}`;
 
           case "yyyy mm dd":
             return `${d.getFullYear()}${delimiter}${z(d.getMonth() + 1)}${delimiter}${z(d.getDate())}`;
