@@ -168,8 +168,10 @@
         { label: "dd mmm yyyy" },
         { label: "dd mmmm yyyy" },   // NEW
         { label: "mm dd yyyy" },
+        { label: "M DD YYYY" },      // NEW
         { label: "mmm dd yyyy" },
         { label: "mmmm dd yyyy" },   // NEW
+        { label: "MMMM D YYYY" },    // NEW
         { label: "mmmm d, yyyy" },   // Single digit date
         { label: "yyyy mm dd" },
         { label: "yyyy mmmm dd" }    // NEW
@@ -192,11 +194,17 @@
           case "mm dd yyyy":
             return `${z(d.getMonth() + 1)}${delimiter}${z(d.getDate())}${delimiter}${d.getFullYear()}`;
 
+          case "M DD YYYY":
+            return `${d.getMonth() + 1}${delimiter}${z(d.getDate())}${delimiter}${d.getFullYear()}`;
+
           case "mmm dd yyyy":
             return `${monthShort}${delimiter}${z(d.getDate())}${delimiter}${d.getFullYear()}`;
 
           case "mmmm dd yyyy":
             return `${monthLong}${delimiter}${z(d.getDate())}${delimiter}${d.getFullYear()}`;
+
+          case "MMMM D YYYY":
+            return `${monthLong}${delimiter}${d.getDate()}${delimiter}${d.getFullYear()}`;
 
           case "mmmm d, yyyy":
             return `${monthLong} ${d.getDate()}, ${d.getFullYear()}`;
